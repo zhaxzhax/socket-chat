@@ -1,4 +1,4 @@
-use socket_chat::ThreadPool;
+use socket_chat::{StreamPool, ThreadPool};
 use std::fs;
 use std::io::prelude::*;
 use std::net::TcpListener;
@@ -8,18 +8,13 @@ use std::time::Duration;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(10);
-
-    for stream in listener.incoming().take(100000) {
+    let mut stream_pool = StreamPool::new(2);
+    for stream in listener.incoming().take(2) {
+        println!("get a stream");
         let stream = stream.unwrap();
-        pool.execute(handle_connection(stream));
+        stream_pool.connect(stream);
     }
-
+    println!("10 in");
+    stream_pool.begin();
     println!("Shutting down.");
-}
-
-fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 512];
-    stream.read(&mut buffer).unwrap();
-    stream.write(&buffer).unwrap();
 }

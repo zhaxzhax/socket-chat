@@ -1,4 +1,5 @@
 /target
 **/*.rs.bk
 /build
-/node_modules
+build/
+node_modules/

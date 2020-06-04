@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <title>Hello World!</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<style>
+		.area{
+			height: 400px;
+			width: 100%;
+			border: 1px solid;
+		}
+	</style>
+  </head>
+  <body>
+    <div id="vue">
+		<div class="area" >
+			<div v-for="item in textarea">{{item}}</div>
+		</div>
+		<div>
+			<div class="input-group">
+			  <span class="input-group-addon" v-model="nickname" id="basic-addon1">昵称</span>
+			  <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+			</div>
+			<div class="input-group">
+			  <span class="input-group-addon" v-model="message" id="basic-addon1">信息</span>
+			  <input type="text" class="form-control" placeholder="Message" aria-describedby="basic-addon1">
+			  <span class="input-group-btn">
+			          <button class="btn btn-default" @click="send" type="button">发送</button>
+			        </span>
+			</div>
+		</div>
+	</div>
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+	<script>
+		var vue = new Vue({
+			el:"#vue",
+			data() {return{
+				nickname:"",
+				message:"",
+				textarea:[]
+			 }
+			},
+			methods:{
+				send: function(){
+					if(this.nickname==""||this.message==""){
+						alert("请输入昵称或信息");
+					}else{
+						this.send(this.nickname+":  "+this.message)
+					}
+				}
+			}
+		})
+	</script>
+  </body>
+</html>
