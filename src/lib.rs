@@ -48,48 +48,51 @@ impl StreamPool {
         let mut handles = vec![];
         for id in 0..self.allow_num {
             let stream_list = Arc::clone(&self.stream_list);
-            let thread = thread::spawn(move || {
+            let thread = thread::spawn(move || loop {
                 let mut buffer = [0; 512];
-                loop {
-                    let mut mutex = stream_list[id].lock().unwrap();
-                    match &mut *mutex {
-                        Some(stream) => {
-                            let debug = stream.read(&mut buffer).unwrap();
-                            println!("没有被阻塞");
-                            println!("{:?}", debug);
-                            let hold = b"holding";
-                            move || {
-                                let mutex_release = mutex;
-                                println!("销毁锁")
-                            };
-                            match buffer.starts_with(hold) {
-                                true => {
-                                    println!("hold!");
-                                }
-                                _ => {
-                                    let mut for_index: usize = 0;
-                                    println!("{:?}", stream_list.iter());
-                                    for item in stream_list.iter() {
-                                        println!("在获取锁");
-                                        let mut write_mutex = item.lock().unwrap();
-                                        if for_index == id {
-                                            continue;
-                                        }
-                                        match &mut *write_mutex {
-                                            Some(stream) => {
-                                                stream.write(&mut buffer).unwrap();
-                                                println!("写了些东西");
-                                                stream.flush().unwrap();
-                                            }
-                                            None => {}
-                                        }
+                let mut mutex = stream_list[id].lock().unwrap();
+                match &mut *mutex {
+                    Some(stream) => {
+                        let debug = stream.read(&mut buffer).unwrap();
+                        stream.flush().unwrap();
+                        println!("没有被阻塞");
+                        println!("{:?}", debug);
+                        let hold = b"~";
+                        move || {
+                            let mutex_release = mutex;
+                            println!("销毁锁")
+                        };
+                        match buffer.starts_with(hold) {
+                            true => {
+                                println!("hold!");
+                            }
+                            _ => {
+                                let mut for_index: usize = 0;
+                                println!("{:?}", stream_list.iter());
+                                for item in stream_list.iter() {
+                                    println!("在获取锁");
+                                    let mut write_mutex = item.lock().unwrap();
+                                    if for_index == id {
+                                        println!("{}为什么跳过我{}", for_index, id);
                                         for_index = for_index + 1;
+                                        continue;
                                     }
+                                    match &mut *write_mutex {
+                                        Some(stream) => {
+                                            stream.write(&mut buffer).unwrap();
+                                            println!("写了些东西");
+                                            stream.flush().unwrap();
+                                        }
+                                        None => {
+                                            println!("没有该stream");
+                                        }
+                                    }
+                                    for_index = for_index + 1;
                                 }
                             }
                         }
-                        None => {}
                     }
+                    None => {}
                 }
             });
             handles.push(thread);

@@ -8,8 +8,8 @@ use std::time::Duration;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let mut stream_pool = StreamPool::new(2);
-    for stream in listener.incoming().take(2) {
+    let mut stream_pool = StreamPool::new(3);
+    for stream in listener.incoming().take(3) {
         println!("get a stream");
         let stream = stream.unwrap();
         stream_pool.connect(stream);
