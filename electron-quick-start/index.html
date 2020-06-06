@@ -22,12 +22,12 @@
 		</div>
 		<div>
 			<div class="input-group">
-			  <span class="input-group-addon" v-model="nickname" id="basic-addon1">昵称</span>
-			  <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+			  <span class="input-group-addon"  id="basic-addon1">昵称</span>
+			  <input type="text" class="form-control" v-model="nickname" placeholder="Username" aria-describedby="basic-addon1">
 			</div>
 			<div class="input-group">
-			  <span class="input-group-addon" v-model="message" id="basic-addon1">信息</span>
-			  <input type="text" class="form-control" placeholder="Message" aria-describedby="basic-addon1">
+			  <span class="input-group-addon"  id="basic-addon1">信息</span>
+			  <input type="text" class="form-control" v-model="message" placeholder="Message" aria-describedby="basic-addon1">
 			  <span class="input-group-btn">
 			          <button class="btn btn-default" @click="send" type="button">发送</button>
 			        </span>
@@ -37,6 +37,7 @@
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
 	<script>
+		const { ipcRenderer } = require('electron')
 		var vue = new Vue({
 			el:"#vue",
 			data() {return{
@@ -48,11 +49,30 @@
 			methods:{
 				send: function(){
 					if(this.nickname==""||this.message==""){
+						console.log(this.nickname+" "+this.message);
 						alert("请输入昵称或信息");
 					}else{
-						this.send(this.nickname+":  "+this.message)
+						ipcRenderer.send('show-window', this.nickname+":  "+this.message);
+						this.textarea.push(this.nickname+":  "+this.message)
 					}
+				},
+				Uint8ArrayToString:function (fileData){
+				  var dataString = "";
+				  for (var i = 0; i < fileData.length; i++) {
+				    dataString += String.fromCharCode(fileData[i]);
+				  }
+				 
+				  return dataString
+				
 				}
+			},
+			created(){
+				var that=this;
+				ipcRenderer.on('getMsg', (event, message) => {
+					var mes=this.Uint8ArrayToString(message);
+				            that.textarea.push(mes);
+							console.log(mes);
+				        })
 			}
 		})
 	</script>
