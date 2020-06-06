@@ -1,4 +1,4 @@
-# socks-chat
+# socket-chat
 > A chat demo based on socket which helps me deeply understanding socket.
 ### why code this?
 That's because I am going to build a p2p-chat application, so I code this repo to help me understanding `std::net` crate, and how to build mutithreads application in rust.
